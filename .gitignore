@@ -1,0 +1,19 @@
+# Environnement virtuel
+venv/
+
+# IDE
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs et base locale (optionnel)
+logs/*.db
+
+# Variables sensibles
+.env
+
+#Mes note sur le projet 
+notes.docx
