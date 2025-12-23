@@ -1,0 +1,41 @@
+{
+  "nom_categorie": "Protocol Violations & DDoS & API",
+  "regles": [
+    {
+      "id": "RFC-001",
+      "nom": "Path Traversal (LFI/RFI)",
+      "regex": "(\\.\\.\\/|\\.\\.\\\\|\\/etc\\/|C:\\\\Windows\\\\)",
+      "gravite": "Critique",
+      "commentaire": "Détecte les tentatives d'accès aux fichiers en dehors du répertoire web racine."
+    },
+    {
+      "id": "RFC-002",
+      "nom": "HTTP Smuggling / Splitting",
+      "regex": "[\\r\\n]+(Content-Length|Transfer-Encoding):",
+      "gravite": "Haute",
+      "commentaire": "Détecte les injections de headers pour manipuler la file d'attente des requêtes."
+    },
+    {
+      "id": "DDOS-001",
+      "nom": "Slowloris Detection",
+      "regex": "^$",
+      "type": "threshold",
+      "limite_ms": 10000,
+      "commentaire": "Seuil pour détecter les connexions maintenues ouvertes artificiellement."
+    },
+    {
+      "id": "DDOS-002",
+      "nom": "Rate Limiting",
+      "regex": ".*",
+      "requetes_par_minute": 100,
+      "commentaire": "Limite le nombre de requêtes par IP."
+    },
+    {
+      "id": "JSON-001",
+      "nom": "Circular Reference / Depth",
+      "regex": "(\\{\\s*){10,}",
+      "gravite": "Moyenne",
+      "commentaire": "Détecte les structures JSON trop complexes (Deep Parsing Attack)."
+    }
+  ]
+}

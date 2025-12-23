@@ -1,0 +1,26 @@
+{
+  "nom_categorie": "Injections (SQL, NoSQL, OS)",
+  "regles": [
+    {
+      "id": "SQLI-001",
+      "nom": "SQL Injection",
+      "regex": "(?i)(union|select|insert|update|delete|drop|where|group by|having|order by|limit|'|\"|--|#|\\/\\*)",
+      "gravite": "Critique",
+      "commentaire": "Détecte les tentatives d'évasion de syntaxe SQL et les mots-clés de manipulation de base de données."
+    },
+    {
+      "id": "NOSQL-001",
+      "nom": "MongoDB Operator Injection",
+      "regex": "(\\$gt|\\$ne|\\$where|\\$regex|\\$lt|\\$lte)",
+      "gravite": "Haute",
+      "commentaire": "Détecte l'injection d'opérateurs logiques MongoDB dans les paramètres JSON ou URL."
+    },
+    {
+      "id": "OSI-001",
+      "nom": "Command Injection",
+      "regex": "(;|\\||&&|\\$\\(|`|\\b(cat|ls|pwd|whoami|netstat|ifconfig|ipconfig)\\b)",
+      "gravite": "Critique",
+      "commentaire": "Repère l'utilisation de méta-caractères shell pour exécuter des commandes système."
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "nom_categorie": "Règles Personnalisées et DDoS",
+  "regles": [
+    {
+      "id": "CUSTOM-001",
+      "nom": "Accès Administration non autorisé",
+      "regex": "(?i)(\\/admin|\\/wp-admin|\\/config|\\.env|\\.git)",
+      "gravite": "Haute",
+      "commentaire": "Bloque l'accès aux dossiers sensibles si l'utilisateur n'est pas sur une IP blanche."
+    },
+    {
+      "id": "DOS-001",
+      "nom": "Requête anormalement longue",
+      "regex": ".{2000,}",
+      "gravite": "Moyenne",
+      "commentaire": "Une URL ou un paramètre dépassant 2000 caractères est souvent signe d'une tentative de Buffer Overflow."
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "nom_categorie": "Atténuation des Bots & Scanners",
+  "regles": [
+    {
+      "id": "BOT-001",
+      "nom": "Bot/Scanner User-Agent",
+      "regex": "(?i)(sqlmap|nikto|dirbuster|gobuster|python-requests|curl|wget|nmap|zgrab|masscan)",
+      "gravite": "Moyenne",
+      "commentaire": "Bloque les outils automatisés basés sur leur signature User-Agent."
+    },
+    {
+      "id": "BOT-002",
+      "nom": "Headless Browsers",
+      "regex": "(?i)(HeadlessChrome|PhantomJS|Puppeteer)",
+      "gravite": "Moyenne",
+      "commentaire": "Détecte les navigateurs sans interface souvent utilisés pour le scraping massif."
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "projet": "ProjetWAF",
+  "version": "1.0",
+  "description": "Protection complète basée sur le Top 10 OWASP",
+  "signatures": [
+    {
+      "categorie": "A03:2021-Injection (SQL, NoSQL, OS)",
+      "regles": [
+        {
+          "id": "INJ-001",
+          "nom": "SQL Injection",
+          "regex": "(?i)(union|select|insert|update|delete|drop|where|group by|having|order by|limit|'|\"|--|#|\\/\\*)",
+          "gravite": "Critique",
+          "commentaire": "Détecte les tentatives de manipulation de base de données SQL."
+        },
+        {
+          "id": "INJ-002",
+          "nom": "NoSQL Injection",
+          "regex": "(\\$gt|\\$ne|\\$where|\\$regex|\\$lt|\\$lte)",
+          "gravite": "Haute",
+          "commentaire": "Cible les opérateurs logiques MongoDB injectés dans du JSON."
+        },
+        {
+          "id": "INJ-003",
+          "nom": "OS Command Injection",
+          "regex": "(;|\\||&&|\\$\\(|`|\\b(cat|ls|pwd|whoami|netstat|ifconfig|ipconfig)\\b)",
+          "gravite": "Critique",
+          "commentaire": "Repère l'exécution de commandes système via des méta-caractères shell."
+        }
+      ]
+    },
+    {
+      "categorie": "A01:2021-Broken Access Control (XSS, LFI, CSRF)",
+      "regles": [
+        {
+          "id": "XSS-001",
+          "nom": "Cross-Site Scripting (XSS)",
+          "regex": "(?i)(<script|<iframe|<svg|onerror=|onload=|javascript:|document\\.cookie|alert\\()",
+          "gravite": "Haute",
+          "commentaire": "Bloque l'exécution de scripts malveillants et l'accès aux cookies de session."
+        },
+        {
+          "id": "LFI-001",
+          "nom": "Path Traversal / LFI",
+          "regex": "(\\.\\.\\/|\\.\\.\\\\|\\/etc\\/passwd|etc\\/shadow|windows\\/system32|boot\\.ini)",
+          "gravite": "Critique",
+          "commentaire": "Détecte les tentatives d'accès aux fichiers sensibles du serveur."
+        },
+        {
+          "id": "CSRF-001",
+          "nom": "CSRF Pattern Detection",
+          "regex": "(?i)(fetch\\(|XMLHttpRequest|axios\\.|xsrf-token|csrf_token)",
+          "gravite": "Moyenne",
+          "commentaire": "Surveille les outils de forge de requêtes et la présence de jetons de sécurité."
+        }
+      ]
+    },
+    {
+      "categorie": "A05:2021-Security Misconfiguration (Scanners, Admin)",
+      "regles": [
+        {
+          "id": "SCAN-001",
+          "nom": "Bot & Scanner Detection",
+          "regex": "(?i)(sqlmap|nikto|dirbuster|gobuster|python-requests|nmap|masscan|zgrab)",
+          "gravite": "Moyenne",
+          "commentaire": "Bloque les outils automatisés de reconnaissance de failles."
+        },
+        {
+          "id": "ADMIN-001",
+          "nom": "Unprivileged Admin Access",
+          "regex": "(?i)(\\/admin|\\/wp-admin|\\/config|\\.env|\\.git|\\.htaccess)",
+          "gravite": "Haute",
+          "commentaire": "Empêche l'accès direct aux fichiers de configuration et interfaces d'administration."
+        }
+      ]
+    },
+    {
+      "categorie": "A04:2021-Insecure Design & Protocol (RFC, Smuggling)",
+      "regles": [
+        {
+          "id": "RFC-001",
+          "nom": "HTTP Request Smuggling",
+          "regex": "[\\r\\n]+(Content-Length|Transfer-Encoding):",
+          "gravite": "Haute",
+          "commentaire": "Détecte les manipulations de headers HTTP pour tromper le proxy."
+        },
+        {
+          "id": "JSON-001",
+          "nom": "JSON DOS (Depth)",
+          "regex": "(\\{\\s*){10,}",
+          "gravite": "Moyenne",
+          "commentaire": "Protège contre les attaques par déni de service via des objets JSON trop profonds."
+        }
+      ]
+    },
+    {
+      "categorie": "Post-Exploitation & Data Leakage",
+      "regles": [
+        {
+          "id": "SHELL-001",
+          "nom": "Webshell Access",
+          "regex": "(?i)(cmd=|shell=|exec=|passthru=|system=|eval\\(|base64_decode\\()",
+          "gravite": "Critique",
+          "commentaire": "Détecte l'utilisation de backdoors après une compromission."
+        },
+        {
+          "id": "DLP-001",
+          "nom": "Data Loss Prevention (CB)",
+          "regex": "\\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})\\b",
+          "gravite": "Critique",
+          "commentaire": "Bloque la sortie de numéros de cartes bancaires dans les réponses du serveur."
+        }
+      ]
+    }
+  ]
+}

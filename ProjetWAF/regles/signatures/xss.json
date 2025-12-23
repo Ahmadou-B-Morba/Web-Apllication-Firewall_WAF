@@ -1,0 +1,33 @@
+{
+  "nom_categorie": "Cross-Site Scripting (XSS)",
+  "regles": [
+    {
+      "id": "XSS-001",
+      "nom": "Balises HTML malveillantes",
+      "regex": "(?i)(<script|<iframe|<object|<embed|<applet|<meta|<style|<form|<svg|<body|<details)",
+      "gravite": "Haute",
+      "commentaire": "Détecte l'insertion de balises HTML capables d'exécuter du code JS ou de modifier la structure de la page."
+    },
+    {
+      "id": "XSS-002",
+      "nom": "Gestionnaires d'événements (Event Handlers)",
+      "regex": "(?i)(on\\w+\\s*=|javascript:)",
+      "gravite": "Haute",
+      "commentaire": "Cible les attributs JS comme onerror, onload, onclick ou le protocole javascript: utilisé dans les liens."
+    },
+    {
+      "id": "XSS-003",
+      "nom": "Manipulation de fonctions JS sensibles",
+      "regex": "(?i)(eval\\(|setTimeout\\(|setInterval\\(|Function\\(|atob\\(|String.fromCharCode)",
+      "gravite": "Critique",
+      "commentaire": "Repère l'utilisation de fonctions de haut niveau souvent détournées pour exécuter du code obfusqué (caché)."
+    },
+    {
+      "id": "XSS-004",
+      "nom": "Accès au DOM / Cookies",
+      "regex": "(?i)(document\\.cookie|document\\.domain|window\\.location|document\\.write|alert\\(|prompt\\(|confirm\\()",
+      "gravite": "Moyenne",
+      "commentaire": "Détecte les tentatives d'exfiltration de cookies de session ou de redirection forcée de l'utilisateur."
+    }
+  ]
+}

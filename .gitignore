@@ -2,7 +2,6 @@
 venv/
 
 # IDE
-.idea/
 .vscode/
 
 # Python
@@ -17,3 +16,6 @@ logs/*.db
 
 #Mes note sur le projet 
 notes.docx
+
+#Fichiers XML
+*.xml

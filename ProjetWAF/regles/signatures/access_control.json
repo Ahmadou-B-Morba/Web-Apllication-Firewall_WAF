@@ -1,0 +1,37 @@
+{
+  "nom_categorie": "CSRF & Broken Auth & Post-Exploitation",
+  "regles": [
+    {
+      "id": "CSRF-001",
+      "nom": "Vérification de l'Origine (Referer/Origin)",
+      "regex": "^$", 
+      "action": "check_header",
+      "headers_requis": ["Referer", "Origin"],
+      "gravite": "Moyenne",
+      "commentaire": "Vérifie si la requête provient d'un domaine tiers non autorisé (Cross-Origin)."
+    },
+    {
+      "id": "CSRF-002",
+      "nom": "Absence de Jeton CSRF",
+      "regex": "(?i)(csrf_token|authenticity_token|xsrf-token)",
+      "presence": "obligatoire",
+      "methode": "POST",
+      "gravite": "Haute",
+      "commentaire": "Alerte si une requête de modification (POST) ne contient pas de paramètre de jeton anti-CSRF."
+    },
+    {
+      "id": "CSRF-003",
+      "nom": "Requête Cross-Domain suspecte",
+      "regex": "(?i)(fetch\\(|XMLHttpRequest|axios\\.)",
+      "gravite": "Basse",
+      "commentaire": "Détecte l'utilisation de scripts JS pour forger des requêtes vers l'API."
+    },
+    {
+      "id": "SHELL-001",
+      "nom": "Webshell Execution",
+      "regex": "(?i)(cmd=|shell=|exec=|passthru=|system=|eval\\(|base64_decode\\()",
+      "gravite": "Critique",
+      "commentaire": "Détecte les paramètres typiquement utilisés par les shells (ex: c99, r57)."
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "nom_categorie": "Data Loss Prevention (DLP)",
+  "regles": [
+    {
+      "id": "DLP-001",
+      "nom": "Fuite de numéro de Carte Bancaire",
+      "regex": "\\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})\\b",
+      "gravite": "Critique",
+      "commentaire": "Détecte les numéros de cartes Visa/Mastercard/Amex dans la réponse du serveur."
+    },
+    {
+      "id": "DLP-002",
+      "nom": "Fuite d'erreur système (Stacktrace)",
+      "regex": "(?i)(stack trace|exception in thread|at line [0-9]+|mysql_fetch_array|Internal Server Error)",
+      "gravite": "Moyenne",
+      "commentaire": "Empêche l'exposition de détails techniques lors d'un crash."
+    }
+  ]
+}
