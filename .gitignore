@@ -19,3 +19,6 @@ notes.docx
 
 #Fichiers XML
 *.xml
+
+#fichiers de logs pas inserer 
+fallback_logs.txt

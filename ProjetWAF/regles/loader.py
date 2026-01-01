@@ -94,6 +94,22 @@ class RuleLoader:
         except Exception as e:
             print(f"[ERREUR] Impossible de lire {filename} : {e}")
 
+    def check(self, text):
+        """
+        Scanne un texte et retourne la première règle qui match.
+        """
+        if not text or not isinstance(text, str):
+            return None
+            
+        for rule in self.rules:
+            if rule["compiled_re"].search(text):
+                # On retourne un dictionnaire avec les détails pour le log
+                return {
+                    "nom": rule.get("nom"),
+                    "id": rule.get("id"),
+                    "gravite": rule.get("gravite", "Inconnue")
+                }
+        return None
 # ==========================================
 # Script de test
 # ==========================================
