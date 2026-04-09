@@ -1,0 +1,13 @@
+# Pour activer un environnement virtuel Python 
+Ac_venv:
+	source venv/bin/activate
+	
+#Pour desactiver un environnement virtuel Python
+Des_venv:
+	desactivate
+	
+#Pour lancer le projet python
+run:
+	python3 app.py
+	
+
