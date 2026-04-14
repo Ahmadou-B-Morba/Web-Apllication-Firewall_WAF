@@ -1,76 +1,111 @@
-#🔐 ProjetWAF – Web Application Firewall intelligent en Python
-📌 Présentation
+# 🔐 ProjetWAF – Intelligent Web Application Firewall
 
-ProjetWAF est un Web Application Firewall (WAF) développé en Python, conçu dans une démarche pédagogique et expérimentale afin d’explorer les mécanismes modernes de sécurisation des applications web.
+## 📌 Overview
 
-Contrairement à une approche classique reposant uniquement sur des signatures statiques, ce projet propose une vision hybride combinant détection par règles et analyse intelligente basée sur l’intelligence artificielle. L’objectif est de reproduire, à échelle réduite, le fonctionnement des solutions de sécurité actuelles capables de s’adapter à des comportements malveillants de plus en plus complexes.
+ProjetWAF is a Python-based Web Application Firewall (WAF) designed for educational and experimental purposes.  
+It aims to provide a practical understanding of how modern web applications can be protected against common and advanced attacks.
 
-Le système agit comme une couche intermédiaire entre l’utilisateur et l’application web, en interceptant et analysant chaque requête HTTP avant qu’elle ne soit traitée.
+Unlike traditional WAFs that rely solely on static signatures, this project introduces a **hybrid detection approach**, combining:
 
-#🧠 Fonctionnement global
+- Rule-based detection (signatures)
+- AI-based behavioral analysis
 
-Le cœur du projet repose sur un mécanisme d’interception des requêtes via un middleware Flask. Chaque requête entrante est inspectée en profondeur : les paramètres, les en-têtes et les données envoyées sont extraits puis soumis à différents niveaux d’analyse.
+The system acts as an intermediary layer between the client and the web application, inspecting and filtering HTTP requests before they are processed.
 
-Dans un premier temps, un moteur de détection basé sur des règles identifie rapidement les signatures connues d’attaques telles que les injections SQL, les scripts malveillants ou les tentatives de contournement. Cette approche permet une détection rapide et efficace des menaces classiques.
+---
 
-En complément, une couche d’analyse intelligente vient enrichir cette détection en évaluant le comportement global de la requête. Plutôt que de se limiter à des motifs précis, cette couche cherche à identifier des anomalies ou des patterns suspects qui pourraient échapper aux règles statiques.
+## 🧠 How It Works
 
-#🤖 Intégration de l’intelligence artificielle
+ProjetWAF is built around a Flask middleware that intercepts all incoming HTTP requests. Each request is analyzed through multiple layers:
 
-L’un des aspects centraux de ce projet réside dans l’intégration d’un module d’intelligence artificielle permettant d’améliorer la détection des attaques.
+### 🔍 Rule-Based Detection
 
-Ce module repose sur une logique d’apprentissage supervisé (ou semi-supervisé selon l’évolution du projet), dans laquelle des requêtes sont analysées et transformées en caractéristiques exploitables (features). Ces caractéristiques peuvent inclure, par exemple, la longueur des entrées, la présence de caractères spéciaux, la structure des données ou encore la fréquence de certains motifs.
+The first layer relies on a set of predefined security rules using regular expressions.  
+These rules are designed to detect known attack patterns such as:
 
-À partir de ces données, un modèle est capable de distinguer des requêtes légitimes de requêtes potentiellement malveillantes. Ce modèle agit comme un complément aux règles traditionnelles, permettant de détecter des attaques inconnues ou obfusquées.
+- SQL Injection
+- Cross-Site Scripting (XSS)
+- Command Injection
+- Path Traversal
 
-L’IA introduit ainsi une dimension adaptative au WAF, en rendant la détection moins dépendante de signatures fixes et plus orientée vers l’analyse comportementale.
+This ensures fast and efficient detection of well-known threats.
 
-#📊 Journalisation et analyse
+### 🤖 AI-Based Detection
 
-Chaque requête analysée génère des informations exploitables qui sont enregistrées dans un système de journalisation structuré. Lorsqu’une menace est détectée, plusieurs éléments sont conservés afin de permettre une analyse approfondie :
+To go beyond static rules, the project integrates an **Artificial Intelligence module** capable of detecting suspicious behavior.
 
-le type d’attaque identifié ou suspecté,
-les données ayant déclenché la détection,
-le niveau de risque estimé,
-la décision prise par le système (autorisation ou blocage),
-l’horodatage de l’événement.
+Instead of looking only for known patterns, the AI analyzes requests based on extracted features such as:
 
-Ces données peuvent être utilisées pour améliorer les règles existantes, entraîner le modèle d’intelligence artificielle ou encore fournir une base pour la visualisation et le monitoring.
+- Input length
+- Special character distribution
+- Suspicious keywords frequency
+- Structural anomalies in payloads
 
-#🧩 Architecture du projet
+A trained model is then used to classify requests as **legitimate or potentially malicious**.
 
-Le projet adopte une architecture modulaire afin de séparer clairement les responsabilités et faciliter son évolution.
+This allows the system to detect:
+- Unknown attacks
+- Obfuscated payloads
+- Unusual request patterns
 
-Le système s’organise autour de plusieurs composants principaux :
+---
 
-un module d’interception des requêtes intégré à Flask,
-un moteur de règles chargé de la détection par signatures,
-un module d’intelligence artificielle dédié à l’analyse comportementale,
-un système de journalisation pour la traçabilité,
-une couche de configuration permettant d’ajouter ou modifier facilement les règles.
+## 📊 Logging & Monitoring
 
-Cette organisation permet de faire évoluer indépendamment chaque partie du système, notamment le module IA qui peut être enrichi sans impacter le reste de l’application.
+All analyzed requests and detected threats are logged for traceability and analysis.
 
-#🎯 Objectifs
+Each event may include:
+- Detected attack type (or suspicion level)
+- Malicious input data
+- Risk score (if AI is used)
+- Decision taken (allowed / blocked)
+- Timestamp
 
-À travers ce projet, plusieurs objectifs sont poursuivis :
+Logs can be stored in structured files or a database, making them useful for:
+- Security auditing
+- Model training
+- Attack analysis
 
-comprendre en profondeur le fonctionnement d’un WAF,
-expérimenter des techniques de détection d’attaques web,
-intégrer des concepts d’intelligence artificielle dans un contexte de cybersécurité,
-développer une architecture logicielle claire et extensible,
-simuler des mécanismes utilisés dans des solutions de sécurité réelles.
+---
 
-#🚀 Perspectives d’évolution
+## 🧩 Architecture
 
-ProjetWAF a été conçu comme une base évolutive. Plusieurs améliorations peuvent être envisagées :
+The project follows a modular architecture to ensure clarity and scalability:
 
-enrichissement du modèle d’intelligence artificielle,
-ajout de mécanismes de scoring et de classification avancée,
-mise en place d’une interface de visualisation des attaques,
-détection en temps réel avec apprentissage continu,
-intégration avec des outils externes de monitoring ou de SIEM.
+- **Middleware Layer**: Intercepts HTTP requests via Flask
+- **Rule Engine**: Handles signature-based detection
+- **AI Module**: Performs behavioral analysis and classification
+- **Logging System**: Records detected events
+- **Configuration Layer**: Allows easy rule management
 
-#🧑‍💻 Auteur
+This design makes it easy to extend or improve each component independently.
 
-Ce projet a été réalisé dans le cadre d’un apprentissage en cybersécurité, avec une volonté de combiner développement logiciel et sécurité offensive/défensive.
+---
+
+## 🎯 Objectives
+
+This project was built to:
+
+- Understand how a Web Application Firewall works
+- Explore web security vulnerabilities and protections
+- Apply AI techniques in a cybersecurity context
+- Design a modular and extensible system
+- Simulate real-world defensive mechanisms
+
+---
+
+## 🚀 Future Improvements
+
+ProjetWAF can be extended in several ways:
+
+- Improve the AI model (better accuracy, new features)
+- Add real-time adaptive learning
+- Implement a web dashboard for monitoring
+- Introduce advanced scoring and anomaly detection
+- Integrate with SIEM or external security tools
+
+---
+
+## 🧑‍💻 Author
+
+This project was developed as part of a learning journey in cybersecurity and software engineering, with a focus on building practical and intelligent security solutions.
