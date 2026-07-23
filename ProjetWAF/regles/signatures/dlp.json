@@ -14,6 +14,13 @@
       "regex": "(?i)(stack trace|exception in thread|at line [0-9]+|mysql_fetch_array|Internal Server Error)",
       "gravite": "Moyenne",
       "commentaire": "Empêche l'exposition de détails techniques lors d'un crash."
+    },
+    {
+      "id": "DLP-003",
+      "nom": "Fuite d'adresse email",
+      "regex": "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\\b",
+      "gravite": "Moyenne",
+      "commentaire": "Détecte la présence d'une adresse email dans les paramètres ou la réponse (fuite de données)."
     }
   ]
 }

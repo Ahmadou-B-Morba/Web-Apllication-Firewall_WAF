@@ -6,12 +6,12 @@
     {
       "categorie": "A03:2021-Injection (SQL, NoSQL, OS)",
       "regles": [
-        {
-          "id": "INJ-001",
-          "nom": "SQL Injection",
-          "regex": "(?i)(union|select|insert|update|delete|drop|where|group by|having|order by|limit|'|\"|--|#|\\/\\*)",
-          "gravite": "Critique",
-          "commentaire": "Détecte les tentatives de manipulation de base de données SQL."
+       {
+        "id": "INJ-001",
+        "nom": "SQL Injection",
+        "regex": "(?i)(\\bunion\\b|\\bselect\\b|\\binsert\\b|\\bupdate\\b|\\bdelete\\b|\\bdrop\\b|\\bgroup by\\b|\\border by\\b|'\\s*(or|and)\\s|'\\s*=\\s*'|--\\s|#|\\/\\*)",
+        "gravite": "Critique",
+        "commentaire": "Détecte les tentatives de manipulation de base de données SQL."
         },
         {
           "id": "INJ-002",

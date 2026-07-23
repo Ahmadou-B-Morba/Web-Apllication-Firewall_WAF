@@ -2,16 +2,27 @@
 DROP TABLE IF EXISTS attack_logs;
 \c waf_db;
 -- 2. Créer la nouvelle table avec des types de données flexibles
-CREATE TABLE if not exists attack_logs (
+CREATE TABLE IF NOT EXISTS attack_logs (
     id SERIAL PRIMARY KEY,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ip_address TEXT,       
-    attack_type TEXT,             
-    request_method TEXT,
-    request_uri TEXT,
+    timestamp TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ip_address VARCHAR(45) NOT NULL,
+    session_id VARCHAR(255),
+    attack_type VARCHAR(100) NOT NULL,
     payload TEXT,
-    user_agent TEXT
+    method VARCHAR(10),
+    uri TEXT,
+    user_agent TEXT,
+    risk_score FLOAT,
+    action VARCHAR(20) DEFAULT 'blocked'
 );
+
+
+-- Index pour optimiser les requêtes
+CREATE INDEX IF NOT EXISTS idx_attack_logs_ip ON attack_logs(ip_address);
+CREATE INDEX IF NOT EXISTS idx_attack_logs_timestamp ON attack_logs(timestamp);
+CREATE INDEX IF NOT EXISTS idx_attack_logs_attack_type ON attack_logs(attack_type);
+CREATE INDEX IF NOT EXISTS idx_attack_logs_session ON attack_logs(session_id);
+
 
 -- 3. Vérification des données insérées 
 SELECT * FROM attack_logs;

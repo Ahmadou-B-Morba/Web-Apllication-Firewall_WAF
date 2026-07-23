@@ -1,13 +1,27 @@
-# Pour activer un environnement virtuel Python 
+# Activation de l'environnement virtuel
 Ac_venv:
-	source venv/bin/activate
-	
-#Pour desactiver un environnement virtuel Python
-Des_venv:
-	desactivate
-	
-#Pour lancer le projet python
-run:
-	python3 app.py
-	
+    source venv/bin/activate
 
+# Désactivation de l'environnement virtuel
+Des_venv:
+    deactivate
+
+# Installation des dépendances
+install:
+    pip install -r requirements.txt
+
+# Lancer le WAF en développement
+run:
+    python3 app.py
+
+# Lancer le WAF en production
+run_prod:
+    gunicorn -w 4 -b 0.0.0.0:5000 app:app
+
+# Exécuter les tests
+test:
+    pytest tests/
+
+# Entraîner le modèle IA
+train_model:
+    python3 train_model.py
