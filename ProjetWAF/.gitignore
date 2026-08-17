@@ -1,3 +1,14 @@
+# Variables d'environnement
 .env
-
 .env.example
+
+# Cache pytest
+.pytest_cache/
+
+# Cache Python
+__pycache__/
+*.pyc
+
+# Logs générés par les tests / l'application
+logs/*.log
+logs/*.jsonl

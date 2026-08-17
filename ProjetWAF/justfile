@@ -1,6 +1,6 @@
 # Activation de l'environnement virtuel
 Ac_venv:
-    source venv/bin/activate
+    source mon_env/bin/activate
 
 # Désactivation de l'environnement virtuel
 Des_venv:
@@ -18,9 +18,13 @@ run:
 run_prod:
     gunicorn -w 4 -b 0.0.0.0:5000 app:app
 
-# Exécuter les tests
+# Exécuter tous les tests
 test:
     pytest tests/
+
+# Exécuter les tests sans ceux nécessitant une base PostgreSQL
+test_ci:
+    pytest tests/ -m "not db"
 
 # Entraîner le modèle IA
 train_model:
