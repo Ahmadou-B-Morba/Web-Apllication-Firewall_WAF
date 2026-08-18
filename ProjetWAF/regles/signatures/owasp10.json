@@ -4,7 +4,7 @@
   "description": "Protection complète basée sur le Top 10 OWASP",
   "signatures": [
     {
-      "categorie": "A03:2021-Injection (SQL, NoSQL, OS)",
+      "category": "A03:2021-Injection (SQL, NoSQL, OS)",
       "regles": [
        {
         "id": "INJ-001",
@@ -30,7 +30,7 @@
       ]
     },
     {
-      "categorie": "A01:2021-Broken Access Control (XSS, LFI, CSRF)",
+      "category": "A01:2021-Broken Access Control (XSS, LFI, CSRF)",
       "regles": [
         {
           "id": "XSS-001",
@@ -56,7 +56,7 @@
       ]
     },
     {
-      "categorie": "A05:2021-Security Misconfiguration (Scanners, Admin)",
+      "category": "A05:2021-Security Misconfiguration (Scanners, Admin)",
       "regles": [
         {
           "id": "SCAN-001",
@@ -75,7 +75,7 @@
       ]
     },
     {
-      "categorie": "A04:2021-Insecure Design & Protocol (RFC, Smuggling)",
+      "category": "A04:2021-Insecure Design & Protocol (RFC, Smuggling)",
       "regles": [
         {
           "id": "RFC-001",
@@ -94,7 +94,7 @@
       ]
     },
     {
-      "categorie": "Post-Exploitation & Data Leakage",
+      "category": "Post-Exploitation & Data Leakage",
       "regles": [
         {
           "id": "SHELL-001",

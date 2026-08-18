@@ -1,6 +1,6 @@
 # Activation de l'environnement virtuel
 Ac_venv:
-    source venv/bin/activate
+    source mon_env/bin/activate
 
 # Désactivation de l'environnement virtuel
 Des_venv:

@@ -19,10 +19,18 @@ def waf_middleware():
         return None
 
     # Analyser tous les champs possibles
+    # request.json lève une erreur si le Content-Type n'est pas application/json ;
+    # on l'intercepte pour ne pas bloquer les requêtes classiques.
+    json_body = {}
+    try:
+        json_body = request.get_json(silent=True) or {}
+    except Exception:
+        json_body = {}
+
     params = {
         **request.args.to_dict(),       # Query parameters (GET)
         **request.form.to_dict(),       # Form data (POST)
-        **request.json or {},           # JSON body
+        **json_body,                    # JSON body
         **dict(request.headers),        # Headers
     }
 

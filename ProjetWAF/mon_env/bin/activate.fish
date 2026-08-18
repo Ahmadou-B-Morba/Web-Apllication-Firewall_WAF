@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV '/media/ahmadou01/68DE1E1909D058E0/Sur le bureau/Vision/Personnal/projetWAF/ProjetWAF/mon_env'
+set -gx VIRTUAL_ENV '/home/ahmadou01/Téléchargements/Web-Apllication-Firewall_WAF/ProjetWAF/mon_env'
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/"bin $PATH

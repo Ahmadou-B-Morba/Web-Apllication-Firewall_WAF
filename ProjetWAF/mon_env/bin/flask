@@ -1,6 +1,4 @@
-#!/bin/sh
-'''exec' "/media/ahmadou01/68DE1E1909D058E0/Sur le bureau/Vision/Personnal/projetWAF/ProjetWAF/mon_env/bin/python3" "$0" "$@"
-' '''
+#!/home/ahmadou01/Téléchargements/Web-Apllication-Firewall_WAF/ProjetWAF/mon_env/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
