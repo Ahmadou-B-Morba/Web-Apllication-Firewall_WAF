@@ -41,6 +41,15 @@ def fake_cursor():
         def execute(self, sql, params=None):
             calls.append({"sql": sql, "params": params})
 
+        def fetchone(self):
+            # logger.py verifie l'existence de la procedure stockee log_attack
+            # via fetchone()[0]. On retourne [False] pour forcer le chemin
+            # INSERT direct (plus simple a valider dans les tests).
+            return [False]
+
+        def callproc(self, name, args=None):
+            calls.append({"callproc": name, "args": args})
+
         def close(self):
             pass
 
@@ -161,8 +170,9 @@ class TestLogAttack:
         )
         assert ok is True
         assert fake_conn.committed is True
-        # Une seule insertion en base
-        assert len(fake_conn.cursor().calls) == 1
+        # Deux appels execute : (1) SELECT EXISTS procedure stockee,
+        # (2) INSERT direct dans attack_logs.
+        assert len(fake_conn.cursor().calls) == 2
         # Le fichier de backup contient une entrée JSON
         assert patch_log_file.exists()
         ligne = patch_log_file.read_text(encoding="utf-8").strip()
@@ -247,8 +257,9 @@ class TestLogAttack:
             ip="1.2.3.4", attack_type="x", payload=long_payload,
             method="GET", uri="/", user_agent="ua",
         )
-        # Vérifier que le payload passé au curseur est tronqué
-        params = fake_conn.cursor().calls[0]["params"]
+        # Vérifier que le payload passé au curseur est tronqué.
+        # calls[0] = SELECT EXISTS (params=None), calls[1] = INSERT (avec params).
+        params = fake_conn.cursor().calls[1]["params"]
         # params[2] est le payload (3ème colonne après ip, attack_type)
         stored_payload = params[2]
         assert "[TRUNCATED]" in stored_payload

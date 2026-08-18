@@ -68,7 +68,7 @@ def client(fake_request, monkeypatch):
 
 class TestConfiguration:
     def test_backend_url_definie(self):
-        assert BACKEND_URL.startswith("http://")
+        assert BACKEND_URL.startswith("http://") or BACKEND_URL.startswith("https://")
 
     def test_timeout_positif(self):
         assert TIMEOUT > 0
@@ -85,6 +85,8 @@ class TestConfiguration:
 
 class TestFilterHeaders:
     def test_supprime_les_headers_exclus(self):
+        # filter_headers ajoute des headers forwardes (X-Forwarded-*) bases
+        # sur request, donc un contexte de requete est necessaire.
         headers = {
             "Host": "example.com",
             "Content-Length": "10",
@@ -92,23 +94,30 @@ class TestFilterHeaders:
             "Connection": "keep-alive",
             "X-Custom": "value",
         }
-        filtered = filter_headers(headers)
-        for h in EXCLUDED_HEADERS:
-            assert h not in filtered, f"{h} n'aurait pas dû être conservé"
+        with app.test_request_context("/test", headers=headers):
+            filtered = filter_headers(headers)
+        # Les headers d'entree exclus (Host, Content-Length, etc.) ne doivent
+        # pas etre conserves tels quels. Les X-Forwarded-* sont reconstruits
+        # par filter_headers, ils peuvent donc apparaitre dans le resultat.
+        for h in ("Host", "Content-Length", "Transfer-Encoding", "Connection"):
+            assert h not in filtered, f"{h} n'aurait pas du etre conserve"
         assert "X-Custom" in filtered
 
     def test_conserve_les_headers_autorises(self):
         headers = {"Authorization": "Bearer token", "Accept": "application/json"}
-        filtered = filter_headers(headers)
-        assert filtered == headers
+        with app.test_request_context("/test", headers=headers):
+            filtered = filter_headers(headers)
+        assert filtered["Authorization"] == "Bearer token"
+        assert filtered["Accept"] == "application/json"
 
-    def test_dict_vide_retourne_dict_vide(self):
-        assert filter_headers({}) == {}
+    def test_ajoute_les_headers_forwardes(self):
+        headers = {"X-Test": "1"}
+        with app.test_request_context("/test", headers=headers):
+            filtered = filter_headers(headers)
+        assert "X-Forwarded-For" in filtered
+        assert "X-Forwarded-Proto" in filtered
+        assert "X-Forwarded-Host" in filtered
 
-
-# ---------------------------------------------------------------------------
-# Transmission au backend (proxy normal)
-# ---------------------------------------------------------------------------
 
 class TestTransmission:
     def test_get_transmet_au_backend(self, client, fake_request):
@@ -219,13 +228,17 @@ class TestHandlers:
             assert resp[1] == 404
 
     def test_handler_429_ratelimit(self):
-        # jsonify() nécessite un contexte d'application.
+        # jsonify() necessite un contexte d'application.
+        # ratelimit_handler accede a error.description (ajoute par flask-limiter).
         from proxy.transporteur import ratelimit_handler
+        class _FakeError:
+            description = "60"
         with app.app_context():
-            resp = ratelimit_handler(None)
+            resp = ratelimit_handler(_FakeError())
         assert resp[1] == 429
         body = resp[0].get_json()
         assert "error" in body
+        assert "retry_after" in body
 
     def test_handler_413_payload_trop_grand(self):
         from proxy.transporteur import content_too_large

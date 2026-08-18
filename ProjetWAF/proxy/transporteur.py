@@ -6,6 +6,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import time
 import ssl
+import os
 from app import waf_middleware  # Middleware WAF pour l'analyse des requêtes
 
 # Configuration
@@ -15,12 +16,20 @@ PROXY_PORT = 8443  # Port HTTPS pour le proxy
 TIMEOUT = 10  # Timeout en secondes pour les requêtes vers le backend
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # Limite de taille des requêtes (16 Mo)
 
-# Configuration SSL/TLS pour le proxy (à adapter avec vos certificats)
-SSL_CONTEXT = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-SSL_CONTEXT.load_cert_chain(
-    certfile="path/to/cert.pem",  # Chemin vers votre certificat
-    keyfile="path/to/key.pem"      # Chemin vers votre clé privée
-)
+# Configuration SSL/TLS pour le proxy (à adapter avec vos certificats).
+# Le chargement des certificats est différé jusqu'au démarrage réel
+# du serveur (voir __main__) afin que l'import du module ne crash pas
+# lorsque les fichiers cert/key ne sont pas présents (ex: en test, en CI).
+CERT_FILE = os.getenv("SSL_CERT_FILE", "path/to/cert.pem")
+KEY_FILE = os.getenv("SSL_KEY_FILE", "path/to/key.pem")
+SSL_CONTEXT = None  # Construit au démarrage (voir _build_ssl_context())
+
+
+def _build_ssl_context():
+    """Construit le contexte SSL avec les certificats configurés."""
+    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    ctx.load_cert_chain(certfile=CERT_FILE, keyfile=KEY_FILE)
+    return ctx
 
 # Initialisation de l'application Flask
 app = Flask(__name__)
@@ -200,7 +209,7 @@ if __name__ == '__main__':
     app.run(
         host=PROXY_HOST,
         port=PROXY_PORT,
-        ssl_context=SSL_CONTEXT,  # Activer HTTPS
+        ssl_context=_build_ssl_context(),  # Activer HTTPS (charge les certs)
         debug=False,  # Désactiver le mode debug en production
         threaded=True  # Gérer les requêtes en threads (pour les performances)
     )
