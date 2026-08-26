@@ -50,15 +50,42 @@ def fake_cursor():
 
 
 @pytest.fixture
-def fake_conn(fake_cursor):
-    """Une fausse connexion psycopg2 qui retourne fake_cursor."""
+def fake_conn():
+    """Mock d'une connexion PostgreSQL avec un curseur simulé.
+
+    Le curseur est créé une seule fois et réutilisé à chaque appel de
+    ``cursor()`` (comme le fait un vrai psycopg2.connection), afin que
+    ``fake_conn.cursor().calls`` reflète bien tous les execute() passés,
+    et non un nouveau curseur vide à chaque fois.
+    """
+    class _Cursor:
+        def __init__(self):
+            self.calls = []  # Stocke les appels à execute()
+            self._last_query = None
+
+        def execute(self, query, params=None):
+            self.calls.append({"query": query, "params": params})
+            self._last_query = query
+
+        def fetchone(self):
+            # Simule la vérification "la fonction log_attack existe-t-elle ?"
+            # faite par logs/logger.py avant de choisir INSERT direct vs
+            # cur.callproc(). On simule qu'elle N'EXISTE PAS -> chemin INSERT.
+            if self._last_query and "information_schema.routines" in self._last_query:
+                return (False,)
+            return None
+
+        def close(self):
+            pass
+
     class _Conn:
         def __init__(self):
             self.committed = False
             self.rolled_back = False
+            self._cursor = _Cursor()
 
         def cursor(self):
-            return fake_cursor
+            return self._cursor
 
         def commit(self):
             self.committed = True
@@ -161,8 +188,12 @@ class TestLogAttack:
         )
         assert ok is True
         assert fake_conn.committed is True
-        # Une seule insertion en base
-        assert len(fake_conn.cursor().calls) == 1
+        # 2 requêtes exécutées : la vérification d'existence de la fonction
+        # PostgreSQL log_attack(), puis l'INSERT direct (fonction absente ici).
+        calls = fake_conn.cursor().calls
+        assert len(calls) == 2
+        insert_call = next(c for c in calls if "INSERT INTO attack_logs" in c["query"])
+        assert insert_call["params"] is not None
         # Le fichier de backup contient une entrée JSON
         assert patch_log_file.exists()
         ligne = patch_log_file.read_text(encoding="utf-8").strip()
@@ -247,8 +278,12 @@ class TestLogAttack:
             ip="1.2.3.4", attack_type="x", payload=long_payload,
             method="GET", uri="/", user_agent="ua",
         )
-        # Vérifier que le payload passé au curseur est tronqué
-        params = fake_conn.cursor().calls[0]["params"]
+        # Vérifier que le payload passé au curseur (dans l'appel INSERT,
+        # pas dans la vérification d'existence de la fonction PostgreSQL
+        # qui précède) est bien tronqué.
+        calls = fake_conn.cursor().calls
+        insert_call = next(c for c in calls if "INSERT INTO attack_logs" in c["query"])
+        params = insert_call["params"]
         # params[2] est le payload (3ème colonne après ip, attack_type)
         stored_payload = params[2]
         assert "[TRUNCATED]" in stored_payload

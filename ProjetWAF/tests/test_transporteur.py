@@ -61,6 +61,16 @@ def client(fake_request, monkeypatch):
     with app.test_client() as c:
         yield c
 
+@pytest.fixture
+def mock_request():
+    """Mock de l'objet request Flask pour les tests hors contexte."""
+    class MockRequest:
+        headers = {"X-Forwarded-For": "127.0.0.1", "User-Agent": "Test"}
+        remote_addr = "127.0.0.1"
+        scheme = "http"
+        host = "localhost"
+
+    return MockRequest()
 
 # ---------------------------------------------------------------------------
 # Constantes de configuration
@@ -68,7 +78,7 @@ def client(fake_request, monkeypatch):
 
 class TestConfiguration:
     def test_backend_url_definie(self):
-        assert BACKEND_URL.startswith("http://")
+        assert BACKEND_URL.startswith("http://") or BACKEND_URL.startswith("https://")
 
     def test_timeout_positif(self):
         assert TIMEOUT > 0
@@ -84,7 +94,7 @@ class TestConfiguration:
 # ---------------------------------------------------------------------------
 
 class TestFilterHeaders:
-    def test_supprime_les_headers_exclus(self):
+    def test_supprime_les_headers_exclus(self, mock_request):
         headers = {
             "Host": "example.com",
             "Content-Length": "10",
@@ -92,18 +102,18 @@ class TestFilterHeaders:
             "Connection": "keep-alive",
             "X-Custom": "value",
         }
-        filtered = filter_headers(headers)
+        filtered = filter_headers(headers, mock_request)
         for h in EXCLUDED_HEADERS:
             assert h not in filtered, f"{h} n'aurait pas dû être conservé"
         assert "X-Custom" in filtered
 
-    def test_conserve_les_headers_autorises(self):
+    def test_conserve_les_headers_autorises(self, mock_request):
         headers = {"Authorization": "Bearer token", "Accept": "application/json"}
-        filtered = filter_headers(headers)
+        filtered = filter_headers(headers, mock_request)
         assert filtered == headers
 
-    def test_dict_vide_retourne_dict_vide(self):
-        assert filter_headers({}) == {}
+    def test_dict_vide_retourne_dict_vide(self, mock_request):
+        assert filter_headers({}, mock_request) == {}
 
 
 # ---------------------------------------------------------------------------

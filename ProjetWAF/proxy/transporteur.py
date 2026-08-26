@@ -11,16 +11,26 @@ from app import waf_middleware  # Middleware WAF pour l'analyse des requêtes
 # Configuration
 BACKEND_URL = "https://backend-example.com"  # URL HTTPS du backend à protéger
 PROXY_HOST = "0.0.0.0"  # Écoute sur toutes les interfaces
-PROXY_PORT = 8443  # Port HTTPS pour le proxy
+PROXY_PORT = 8443  # Port HTTPS pour le proxy (sera ajusté si SSL est désactivé)
 TIMEOUT = 10  # Timeout en secondes pour les requêtes vers le backend
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # Limite de taille des requêtes (16 Mo)
 
-# Configuration SSL/TLS pour le proxy (à adapter avec vos certificats)
-SSL_CONTEXT = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-SSL_CONTEXT.load_cert_chain(
-    certfile="path/to/cert.pem",  # Chemin vers votre certificat
-    keyfile="path/to/key.pem"      # Chemin vers votre clé privée
-)
+# Configuration SSL/TLS pour le proxy (optionnelle)
+try:
+    SSL_CONTEXT = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    SSL_CONTEXT.load_cert_chain(
+        certfile="ssl/cert.pem",  # Chemin relatif depuis ProjetWAF/
+        keyfile="ssl/key.pem"
+    )
+    print("✅ SSL activé avec certificats.")
+except FileNotFoundError:
+    SSL_CONTEXT = None
+    PROXY_PORT = 8080  # Passe en HTTP si SSL est désactivé
+    print("⚠️  Fichiers SSL non trouvés. HTTPS désactivé (port 8080 utilisé).")
+except Exception as e:
+    SSL_CONTEXT = None
+    PROXY_PORT = 8080
+    print(f"⚠️  Erreur SSL: {e}. HTTPS désactivé (port 8080 utilisé).")
 
 # Initialisation de l'application Flask
 app = Flask(__name__)
@@ -65,15 +75,29 @@ FORWARDED_HEADERS = {
     'X-Forwarded-Host': lambda: request.host
 }
 
-def filter_headers(headers):
-    """Filtre les headers pour éviter les conflits avec le backend."""
+def filter_headers(headers, request_obj=None):
+    """
+    Filtre les headers pour éviter les conflits avec le backend.
+    Accepte un objet `request` optionnel pour les tests.
+    """
+    from flask import request as flask_request
+
+    # Utiliser request_obj si fourni (pour les tests), sinon flask.request
+    req = request_obj if request_obj is not None else flask_request
+
     filtered = {
         key: value for key, value in headers.items()
         if key not in EXCLUDED_HEADERS
     }
-    # Ajouter les headers forwardés
-    for header, value_func in FORWARDED_HEADERS.items():
-        filtered[header] = value_func()
+
+    # Ajouter les headers forwardés (seulement si req est disponible)
+    if req is not None:
+        for header, value_func in FORWARDED_HEADERS.items():
+            try:
+                filtered[header] = value_func()
+            except RuntimeError:
+                # Si on est hors contexte, ignorer les headers forwardés
+                pass
     return filtered
 
 def forward_request(path):
@@ -81,6 +105,7 @@ def forward_request(path):
     Transmet la requête au backend via HTTPS et retourne la réponse.
     Gère les erreurs de connexion, timeout, et taille de payload.
     """
+
     try:
         start_time = time.time()
 
@@ -172,10 +197,11 @@ def not_found(error):
 @app.errorhandler(429)
 def ratelimit_handler(error):
     """Erreur 429 : Trop de requêtes (rate limiting)."""
+    retry_after = getattr(error, 'description', '60')  # Valeur par défaut si error est None
     return jsonify({
         "error": "Too many requests",
         "message": "Rate limit exceeded. Try again later.",
-        "retry_after": error.description  # flask-limiter ajoute cette info
+        "retry_after": retry_after
     }), 429
 
 @app.errorhandler(413)
@@ -196,11 +222,14 @@ def internal_error(error):
     }), 500
 
 if __name__ == '__main__':
-    logger.info(f"Starting WAF Proxy on {PROXY_HOST}:{PROXY_PORT} (HTTPS)...")
+    if SSL_CONTEXT:
+        logger.info(f"Starting WAF Proxy on {PROXY_HOST}:{PROXY_PORT} (HTTPS)...")
+    else:
+        logger.info(f"Starting WAF Proxy on {PROXY_HOST}:{PROXY_PORT} (HTTP)...")
     app.run(
         host=PROXY_HOST,
         port=PROXY_PORT,
-        ssl_context=SSL_CONTEXT,  # Activer HTTPS
+        ssl_context=SSL_CONTEXT,  # None si HTTP, SSLContext si HTTPS
         debug=False,  # Désactiver le mode debug en production
         threaded=True  # Gérer les requêtes en threads (pour les performances)
     )

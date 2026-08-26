@@ -1,10 +1,13 @@
+-- transfère carrément la propriété de la table à o_user
+ALTER TABLE attack_logs OWNER TO o_user;
+
 -- 1. Créer la base de données si elle n'existe pas
 CREATE DATABASE waf_bd;
 
 -- 2. Se connecter à la base de données
-\c waf_bd;
+/c waf_bd;
 
--- 3. Créer la table attack_logs avec une structure optimisée pour un WAF
+-- 3. Créer la table attack_logs avec une structure optimisée pour un WAF (Web Application Firewall)
 CREATE TABLE IF NOT EXISTS attack_logs (
     id SERIAL PRIMARY KEY,
     timestamp TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
